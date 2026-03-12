@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>UPI Fraud Detection AI</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+margin:0;
+color:white;
+}
+
+.container{
+width:95%;
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+.dashboard{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.card{
+background:#1b2735;
+padding:25px;
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:6px;
+border:none;
+background:#2f3e52;
+color:white;
+}
+
+button{
+width:100%;
+padding:14px;
+background:linear-gradient(90deg,#ff512f,#dd2476);
+border:none;
+border-radius:8px;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.result{
+padding:15px;
+font-size:20px;
+border-radius:8px;
+text-align:center;
+margin-top:15px;
+}
+
+.fraud{
+background:#ff3b3b;
+}
+
+.legit{
+background:#2ecc71;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #444;
+text-align:center;
+}
+
+th{
+background:#2c3e50;
+}
+
+@media(max-width:900px){
+
+.dashboard{
+grid-template-columns:1fr;
+}
+
+h1{
+font-size:24px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>⚡ UPI Fraud Detection AI Dashboard</h1>
+
+<div class="dashboard">
+
+<div class="card">
+
+<h2>Analyze Transaction</h2>
+
+<form method="POST" action="/predict">
+
+<input type="number" name="hour" placeholder="Transaction Hour (0-23)" required>
+
+<input type="number" name="day" placeholder="Transaction Day" required>
+
+<input type="number" name="month" placeholder="Transaction Month" required>
+
+<input type="number" name="year" placeholder="Transaction Year" required>
+
+<input type="number" name="amount" placeholder="Transaction Amount ₹" required>
+
+<button type="submit">Run Fraud Detection</button>
+
+</form>
+
+{% if prediction %}
+
+<div class="result {% if prediction=='Fraud' %}fraud{% else %}legit{% endif %}">
+Result: {{prediction}}
+</div>
+
+{% endif %}
+
+</div>
+
+<div class="card">
+
+<h2>Fraud Risk Meter</h2>
+
+<canvas id="riskChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Transaction History</h2>
+
+<table>
+
+<tr>
+<th>Amount</th>
+<th>Result</th>
+<th>Risk %</th>
+</tr>
+
+{% for t in history %}
+
+<tr>
+<td>₹{{t.amount}}</td>
+<td>{{t.result}}</td>
+<td>{{t.risk}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let riskValue = {{risk if risk else 0}};
+
+const ctx = document.getElementById('riskChart');
+
+new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: ['Fraud Risk','Safe'],
+datasets: [{
+data: [riskValue,100-riskValue],
+backgroundColor:['#ff3b3b','#2ecc71']
+}]
+},
+options:{
+plugins:{
+legend:{display:false}
+},
+cutout:'70%'
+}
+});
+
+</script>
+
+</body>
+</html>
